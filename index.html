@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>web socket</title>
+		<style type="text/css">
+			li{
+				list-style: none;
+			}
+		</style>
+	</head>
+
+	<body>
+		<a href="###" class="open-btn">打开链接</a>
+		<a href="###" class="send-btn">发送数据</a>
+		<a href="###" class="close-btn">关闭链接</a>
+		<ol class="ol">
+			<li class="li1">A股数据：0</li>
+			<li class="li2">B股数据：0</li>
+			<li class="li3">C股数据：0</li>
+			<li class="li4">D股数据：0</li>
+			<li class="li5">E股数据：0</li>
+		</ol>
+		<script type="text/javascript">
+			//创建链接
+			var clientws,sendMessage;
+			var isOpen=false;
+			function open(){
+				clientws = new WebSocket("ws://localhost:8181");
+				clientws.onopen = function(e) {//监听websocket链接服务器成功
+					if(e.type=='open'){
+						isOpen=true;
+					}
+					console.log('Connection to server opened');
+				}
+				sendMessage=function() {
+					var obj={
+						n1:11,
+						n2:10,
+						n3:13,
+						n4:9,
+						n5:15
+					}
+					//客户端给服务器发送信息，对象需要转换成字符串
+					clientws.send(JSON.stringify(obj));
+				}
+				clientws.onmessage = function(ev) {//客户端接收到服务器返回的信息
+					console.log(ev.data);
+					var receiveObj=JSON.parse(ev.data);
+					var li1=document.getElementsByClassName('li1')[0];
+					var li2=document.getElementsByClassName('li2')[0];
+					var li3=document.getElementsByClassName('li3')[0];
+					var li4=document.getElementsByClassName('li4')[0];
+					var li5=document.getElementsByClassName('li5')[0];
+					li1.innerText='A股数据：'+receiveObj.n1;
+					li2.innerText='B股数据：'+receiveObj.n2;
+					li3.innerText='C股数据：'+receiveObj.n3;
+					li4.innerText='D股数据：'+receiveObj.n4;
+					li5.innerText='E股数据：'+receiveObj.n5;
+				}
+			}
+//			打开连接
+			document.getElementsByClassName('open-btn')[0].onclick = function() {
+				open();
+			}
+//			发送数据
+			document.getElementsByClassName('send-btn')[0].onclick = function() {
+				if(isOpen==true){
+					sendMessage();
+				}
+			}
+//			关闭链接
+			document.getElementsByClassName('close-btn')[0].onclick = function() {
+				if(isOpen==true){
+					clientws.close();
+					isOpen=false;
+				}
+			}
+		</script>
+
+	</body>
+
+</html>
